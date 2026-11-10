@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6558df" />
+  <title>Petualangan Belajar — Kuis SD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    :root{--ink:#27304b;--muted:#78819c;--purple:#6558df;--purple2:#8c7df4;--pink:#ff7da9;--yellow:#ffd66b;--mint:#69d7bc;--sky:#6ab9f7;--paper:#fff;--bg:#f4f5ff;--line:#e8e9f5;--shadow:0 14px 40px rgba(67,62,140,.11)}
+    *{box-sizing:border-box}body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 2%,#fff2d8 0,transparent 22%),radial-gradient(circle at 94% 9%,#e3f6ff 0,transparent 24%),var(--bg);min-height:100vh}
+    button,input,select{font:inherit}button{cursor:pointer;border:0}.app{max-width:1180px;margin:auto;padding:22px 22px 48px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:1.15rem}.brand-mark{width:46px;height:46px;border-radius:16px;background:linear-gradient(140deg,var(--purple),#a18aff);display:grid;place-items:center;color:#fff;font-size:25px;box-shadow:0 8px 18px #6558df44}.nav-actions{display:flex;gap:9px;flex-wrap:wrap}.soft-btn{background:#fff;color:var(--purple);border:1px solid var(--line);border-radius:14px;padding:10px 15px;font-weight:800;box-shadow:0 3px 10px #5149a00d}.soft-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(115deg,#5e55d9 0%,#8274eb 55%,#a88df8 100%);border-radius:28px;padding:32px 34px;color:#fff;box-shadow:0 18px 38px #6558df35;margin-bottom:22px}.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;background:#ffffff18}.hero:before{width:240px;height:240px;right:3%;top:-110px}.hero:after{width:120px;height:120px;right:25%;bottom:-78px}.hero-content{position:relative;z-index:1;max-width:720px}.eyebrow{font-size:.78rem;letter-spacing:.12em;font-weight:900;text-transform:uppercase;opacity:.8}.hero h1{font-size:clamp(2rem,5vw,3.25rem);line-height:1.05;margin:9px 0 12px;font-weight:900}.hero p{max-width:620px;margin:0;color:#f1efff;font-size:1.04rem;line-height:1.55}.hero-stickers{position:absolute;right:6%;top:30px;z-index:1;font-size:clamp(3.5rem,10vw,7rem);transform:rotate(8deg);filter:drop-shadow(0 12px 10px #30227b40)}
+    .panel{background:#fff;border:1px solid #eeeff8;border-radius:24px;padding:24px;box-shadow:var(--shadow)}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}.panel h2{margin:0;font-size:1.35rem;font-weight:900}.sub{margin:5px 0 0;color:var(--muted);line-height:1.45}.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.8fr);gap:20px;align-items:start}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:.9rem;font-weight:900}.field input,.field select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fbfbff;color:var(--ink);outline:none}.field input:focus,.field select:focus{border-color:var(--purple);box-shadow:0 0 0 3px #6558df18}.primary{border-radius:15px;padding:14px 20px;background:linear-gradient(110deg,var(--purple),#8776f0);color:#fff;font-weight:900;box-shadow:0 9px 18px #6558df30;transition:.18s}.primary:hover{transform:translateY(-2px);box-shadow:0 12px 22px #6558df40}.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}.full-btn{width:100%;margin-top:17px}.pill{display:inline-flex;align-items:center;gap:6px;background:#f0efff;color:#5c51cf;padding:7px 11px;border-radius:999px;font-weight:900;font-size:.78rem}.info-card{background:linear-gradient(150deg,#fff8e9,#fff);border:1px solid #ffedc4;border-radius:20px;padding:18px}.info-card h3{margin:0 0 8px;font-size:1.04rem}.info-card p{font-size:.9rem;color:#77728c;line-height:1.5;margin:0}.subject-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}.subject-chip{background:#fff;border:1.5px solid var(--line);border-radius:17px;padding:13px 10px;text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center;min-height:90px}.subject-chip span:first-child{font-size:1.65rem}.subject-chip b{font-size:.82rem}.subject-chip small{font-size:.7rem;color:var(--muted)}.subject-chip.active{border-color:var(--purple);background:#f4f2ff;box-shadow:0 0 0 3px #6558df14}.toggle-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}.toggle-line:last-child{border:0}.toggle-line b{font-size:.91rem}.toggle-line small{display:block;color:var(--muted);font-weight:600}.switch{position:relative;width:48px;height:27px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#d9dbea;border-radius:99px;transition:.2s}.slider:before{content:"";position:absolute;left:4px;top:4px;width:19px;height:19px;background:white;border-radius:50%;box-shadow:0 2px 5px #0002;transition:.2s}.switch input:checked+.slider{background:var(--purple)}.switch input:checked+.slider:before{transform:translateX(21px)}
+    .quiz-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.progress-wrap{height:10px;background:#eeeff8;border-radius:99px;overflow:hidden;margin:8px 0 18px}.progress-bar{height:100%;background:linear-gradient(90deg,var(--pink),#ffba73);width:0;transition:width .3s}.q-card{padding:26px;border-radius:22px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}.q-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.q-prompt{font-size:clamp(1.2rem,3vw,1.65rem);line-height:1.35;font-weight:900;margin:12px 0 18px}.passage{background:#f7f7ff;border-left:4px solid var(--purple2);padding:15px 17px;border-radius:12px;color:#4a4d6a;line-height:1.55;margin-bottom:15px}.audio-row{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}.audio-btn{border-radius:13px;background:#fff3ce;color:#84600b;padding:10px 13px;font-weight:900}.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.choice{background:#fafaff;border:1.5px solid var(--line);border-radius:15px;padding:15px;text-align:left;color:var(--ink);font-weight:800;min-height:58px}.choice:hover{border-color:#b5aaff;background:#f6f4ff}.choice.selected{border-color:var(--purple);background:#f0edff;box-shadow:0 0 0 3px #6558df16}.choice.correct{border-color:#43bd92;background:#eafff5}.choice.wrong{border-color:#ff879c;background:#fff0f3}.feedback{border-radius:16px;padding:15px 17px;margin-top:17px;line-height:1.5}.feedback.good{background:#eafff5;color:#176d51;border:1px solid #b9f0d7}.feedback.try{background:#fff5e9;color:#84521b;border:1px solid #ffe1b5}.feedback strong{display:block;margin-bottom:3px}.quiz-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}.muted{color:var(--muted)}.hidden{display:none!important}.result-hero{text-align:center;background:linear-gradient(140deg,#fff7dd,#fff);border:1px solid #ffebbd;border-radius:22px;padding:25px}.result-star{font-size:3.4rem}.result-score{font-size:3rem;font-weight:900;color:var(--purple);line-height:1}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.metric{background:#f7f7ff;border-radius:15px;padding:13px;text-align:center}.metric b{display:block;font-size:1.25rem}.metric small{color:var(--muted);font-weight:700}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#29304e;color:white;padding:12px 18px;border-radius:14px;box-shadow:var(--shadow);transition:.25s;z-index:50;max-width:calc(100vw - 30px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .dashboard{margin-top:10px}.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat{background:#f8f8ff;border:1px solid var(--line);border-radius:17px;padding:15px}.stat small{color:var(--muted);font-weight:800}.stat b{display:block;font-size:1.6rem;font-weight:900;margin-top:4px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}table{border-collapse:collapse;width:100%;min-width:750px;background:#fff}th,td{padding:12px 13px;text-align:left;border-bottom:1px solid #f0f0f7;font-size:.88rem}th{background:#f8f7ff;color:#5b55a9;font-weight:900;position:sticky;top:0}tr:last-child td{border:0}.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.toolbar .soft-btn{padding:9px 12px}.status{font-size:.82rem;font-weight:800;padding:8px 11px;border-radius:999px;background:#fff2d5;color:#865b07}.status.live{background:#e6fff4;color:#187253}.notice{border-radius:15px;background:#f3f2ff;border:1px solid #e2dfff;padding:13px 15px;color:#5c5794;font-size:.87rem;line-height:1.48;margin:14px 0}.login-box{max-width:440px;margin:0 auto}.login-box .field{margin-bottom:12px}.empty{text-align:center;padding:28px;color:var(--muted)}.footnote{font-size:.78rem;color:#858aa2;line-height:1.5;margin-top:17px}.source-list{display:grid;gap:8px}.source-list a{color:#5c53ce;font-weight:800;text-decoration:none}.source-list a:hover{text-decoration:underline}.tag{font-size:.72rem;background:#edf7ff;color:#246c9f;padding:5px 8px;border-radius:999px;font-weight:900}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}.subject-grid{grid-template-columns:repeat(4,1fr)}.hero-stickers{right:4%;opacity:.42}.dash-stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.app{padding:14px 13px 35px}.topbar{align-items:flex-start}.brand{font-size:1rem}.brand-mark{width:40px;height:40px}.hero{padding:25px 22px;border-radius:22px}.hero-stickers{display:none}.panel{padding:18px;border-radius:20px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.subject-grid{grid-template-columns:repeat(2,1fr)}.choices{grid-template-columns:1fr}.quiz-head{align-items:flex-start}.quiz-footer{align-items:stretch;flex-direction:column}.quiz-footer button{width:100%}.dash-stats{gap:8px}.stat{padding:12px}.stat b{font-size:1.35rem}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">✦</div><div>Petualangan Belajar <div class="muted" style="font-size:.72rem;font-weight:800">Kuis interaktif SD · Kelas 1–6</div></div></div>
+    <div class="nav-actions"><button class="soft-btn" id="homeBtn">🏠 Beranda</button><button class="soft-btn" id="teacherBtn">🎓 Ruang Guru</button></div>
+  </header>
+
+  <main id="homeView">
+    <section class="hero"><div class="hero-content"><div class="eyebrow">Belajar jadi petualangan!</div><h1>Siap jadi bintang kelas? ⭐</h1><p>Pilih pelajaran, dengarkan soal, kumpulkan bintang, dan temukan hal baru. Tantangan otomatis mengikuti kelasmu!</p></div><div class="hero-stickers">📚🌈</div></section>
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-head"><div><h2>Yuk, kenalan dulu!</h2><p class="sub">Isi identitasmu sebelum mulai bermain.</p></div><span class="pill">🎒 Mode Murid</span></div>
+        <form id="studentForm">
+          <div class="field-grid">
+            <div class="field full"><label for="studentName">Nama lengkap</label><input id="studentName" maxlength="80" placeholder="Contoh: Alya Putri" autocomplete="name" required /></div>
+            <div class="field"><label for="studentGrade">Kelas</label><select id="studentGrade" required><option value="">Pilih kelas</option><option value="1">Kelas 1</option><option value="2">Kelas 2</option><option value="3">Kelas 3</option><option value="4">Kelas 4</option><option value="5">Kelas 5</option><option value="6">Kelas 6</option></select></div>
+            <div class="field"><label for="studentSubject">Mata pelajaran</label><select id="studentSubject" required><option value="">Pilih pelajaran</option></select></div>
+          </div>
+          <div class="notice" id="phaseNotice">Pilih kelas untuk melihat fase dan tingkat tantangan.</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><div class="toggle-line"><div><b>🔊 Narasi soal</b><small>Bacakan teks dan pertanyaan</small></div><label class="switch"><input type="checkbox" id="narrationToggle" checked><span class="slider"></span></label></div><div class="toggle-line"><div><b>🎵 Efek suara</b><small>Suara saat menjawab</small></div><label class="switch"><input type="checkbox" id="sfxToggle" checked><span class="slider"></span></label></div></div></div>
+          <button class="primary full-btn" type="submit">Mulai Petualangan 🚀</button>
+        </form>
+      </section>
+      <aside class="panel">
+        <div class="panel-head"><div><h2>8 dunia pelajaran</h2><p class="sub">Pilih satu untuk mengasah kemampuanmu.</p></div></div>
+        <div class="subject-grid" id="subjectPreview"></div>
+        <div class="info-card" style="margin-top:17px"><h3>🧭 Tantangan sesuai kelas</h3><p>Fase A untuk kelas 1–2, Fase B untuk kelas 3–4, dan Fase C untuk kelas 5–6. Soal dipilih dari materi sesuai fase, lalu tingkat tantangannya menyesuaikan jawabanmu.</p></div>
+        <p class="footnote">Catatan: IPAS untuk kelas 1–2 dan Bahasa Inggris pada kelas 1–2 ditampilkan sebagai pengayaan/pengenalan. Sekolah perlu menyesuaikan penggunaannya dengan Kurikulum Operasional Satuan Pendidikan (KOSP).</p>
+      </aside>
+    </div>
+  </main>
+
+  <main id="quizView" class="hidden">
+    <div class="quiz-head"><div><span class="pill" id="quizSubjectPill">📘 Pelajaran</span><h2 id="quizWelcome" style="margin:9px 0 0;font-size:1.2rem">Semangat belajar!</h2><div class="muted" id="quizGradeText" style="font-size:.85rem"></div></div><div style="text-align:right"><div class="pill" id="quizCount">Soal 1/3</div><div style="margin-top:8px;font-weight:900;color:#6558df">⭐ <span id="quizScoreNow">0</span></div></div></div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <section class="q-card">
+      <div class="q-meta"><span class="tag" id="qPhase">Fase A</span><span class="tag" id="qDifficulty">Tantangan dasar</span><span class="tag" id="qType">Pilihan ganda</span></div>
+      <div id="questionPassage" class="passage hidden"></div>
+      <div class="q-prompt" id="questionPrompt"></div>
+      <div class="audio-row"><button type="button" class="audio-btn" id="listenBtn">🔊 Dengarkan soal</button><span class="muted" id="audioSupport" style="font-size:.8rem;align-self:center"></span></div>
+      <div class="choices" id="choices"></div>
+      <div id="feedback" class="feedback hidden"></div>
+      <div class="quiz-footer"><span class="muted" id="hintText">Pilih jawaban yang paling tepat, ya!</span><button class="primary" id="nextBtn" disabled>Periksa jawaban ✨</button></div>
+    </section>
+    <div style="display:flex;justify-content:flex-end;margin-top:13px"><button class="soft-btn" id="quitBtn">Keluar dari kuis</button></div>
+  </main>
+
+  <main id="resultView" class="hidden">
+    <section class="panel">
+      <div class="result-hero"><div class="result-star" id="resultEmoji">🏆</div><h2 id="resultTitle">Hebat sekali!</h2><p class="sub" id="resultMessage">Kamu sudah menyelesaikan tantangan.</p><div class="result-score" id="resultScore">100</div><div style="font-weight:900;color:#797b97">NILAI AKHIR</div></div>
+      <div class="result-grid"><div class="metric"><b id="resultCorrect">0/0</b><small>Jawaban benar</small></div><div class="metric"><b id="resultPercent">0%</b><small>Akurasi</small></div><div class="metric"><b id="resultPhase">Fase A</b><small>Tingkat kelas</small></div></div>
+      <div class="notice" id="resultNote">Terus berlatih, ya!</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="primary" id="retryBtn">Main lagi 🔁</button><button class="soft-btn" id="backHomeBtn">Kembali ke beranda</button></div>
+    </section>
+  </main>
+
+  <main id="teacherView" class="hidden">
+    <section class="hero" style="margin-bottom:20px"><div class="hero-content"><div class="eyebrow">Pusat kendali pembelajaran</div><h1 style="font-size:2.3rem">Ruang Guru 👩‍🏫</h1><p>Pantau hasil latihan, lihat perkembangan kelas, dan unduh laporan dalam beberapa format.</p></div><div class="hero-stickers">📊</div></section>
+    <section class="panel" id="teacherLoginPanel">
+      <div class="login-box"><div class="panel-head"><div><h2>Masuk ke dasbor guru</h2><p class="sub" id="loginModeText">Mode demo lokal untuk uji coba.</p></div></div>
+        <div id="localLoginFields"><div class="field"><label for="teacherPin">PIN demo</label><input type="password" id="teacherPin" placeholder="Masukkan PIN demo" maxlength="12"></div><button class="primary full-btn" id="localLoginBtn">Masuk ke dasbor</button><p class="footnote">PIN awal demo: <b>1234</b>. Ganti mekanisme ini sebelum aplikasi dipakai sungguhan.</p></div>
+        <div id="cloudLoginFields" class="hidden"><div class="field"><label for="teacherEmail">Email guru</label><input type="email" id="teacherEmail" placeholder="guru@sekolah.sch.id"></div><div class="field" style="margin-top:12px"><label for="teacherPassword">Kata sandi</label><input type="password" id="teacherPassword" placeholder="Kata sandi akun guru"></div><button class="primary full-btn" id="cloudLoginBtn">Masuk dengan akun guru</button></div>
+        <div class="notice" id="cloudNotice">Mode lokal aktif. Data hanya tersimpan pada browser/perangkat ini. Hubungkan Firebase untuk sinkronisasi lintas perangkat.</div>
+      </div>
+    </section>
+    <section class="panel dashboard hidden" id="dashboardPanel">
+      <div class="panel-head"><div><h2>Ringkasan hasil belajar</h2><p class="sub" id="dashboardSubtitle">Data latihan siswa.</p></div><div class="toolbar"><span class="status" id="syncStatus">Mode lokal</span><button class="soft-btn" id="refreshBtn">↻ Muat ulang</button><button class="soft-btn" id="logoutBtn">Keluar</button></div></div>
+      <div class="dash-stats"><div class="stat"><small>Total pengerjaan</small><b id="statTotal">0</b></div><div class="stat"><small>Rata-rata nilai</small><b id="statAverage">0</b></div><div class="stat"><small>Murid unik</small><b id="statStudents">0</b></div><div class="stat"><small>Nilai tertinggi</small><b id="statHighest">0</b></div></div>
+      <div class="toolbar" style="justify-content:space-between;margin:15px 0"><div class="toolbar"><button class="soft-btn" id="wordBtn">⬇ Word</button><button class="soft-btn" id="excelBtn">⬇ Excel</button><button class="soft-btn" id="pdfBtn">⬇ PDF</button></div><div class="field" style="min-width:220px"><input id="searchResults" placeholder="Cari nama / mata pelajaran…" aria-label="Cari hasil"></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Nama murid</th><th>Kelas</th><th>Mata pelajaran</th><th>Nilai</th><th>Benar</th><th>Tanggal</th><th>Mode data</th></tr></thead><tbody id="resultsBody"><tr><td colspan="7" class="empty">Belum ada hasil kuis.</td></tr></tbody></table></div>
+      <p class="footnote">Hasil kuis merupakan asesmen formatif/latihan, bukan satu-satunya dasar penilaian rapor. Pastikan identitas murid dan kebijakan retensi data sesuai aturan sekolah.</p>
+    </section>
+  </main>
+  <footer class="footnote" style="text-align:center;margin-top:26px">Petualangan Belajar · Prototipe pembelajaran Kurikulum Merdeka · Gunakan di bawah pendampingan guru.</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+  const SUBJECTS = {
+    bi:{name:'Bahasa Indonesia',icon:'📖',note:'Menyimak, membaca, berbicara, dan menulis.'},
+    mtk:{name:'Matematika',icon:'➗',note:'Bilangan, geometri, pengukuran, dan data.'},
+    ipas:{name:'IPAS',icon:'🌱',note:'Mengamati alam, manusia, dan lingkungan.'},
+    pancasila:{name:'Pendidikan Pancasila',icon:'🇮🇩',note:'Pancasila, aturan, keberagaman, dan NKRI.'},
+    pai:{name:'PAI dan Budi Pekerti',icon:'🌙',note:'Akhlak, ibadah, dan pengetahuan dasar Islam.'},
+    pjok:{name:'PJOK',icon:'⚽',note:'Gerak, kebugaran, kesehatan, dan sportivitas.'},
+    english:{name:'Bahasa Inggris',icon:'🔤',note:'Kosakata, ungkapan, dan teks sederhana.'},
+    seni:{name:'Seni Rupa',icon:'🎨',note:'Unsur rupa, alat, bahan, dan karya.'}
+  };
+  const PHASES = {A:{label:'Fase A',grades:'Kelas 1–2',difficulty:'Dasar',base:1},B:{label:'Fase B',grades:'Kelas 3–4',difficulty:'Menengah',base:2},C:{label:'Fase C',grades:'Kelas 5–6',difficulty:'Lanjutan',base:3}};
+  const BANK = {
+    A:{
+      bi:[
+        {d:1,p:'Huruf apakah yang berada di awal kata “apel”?',o:['A','B','P'],a:0,e:'Kata “apel” diawali huruf A. Huruf awal adalah huruf pertama pada sebuah kata.'},
+        {d:1,p:'Dengarkan cerita berikut, lalu jawab pertanyaannya.',passage:'Pagi ini, Beni menyiram bunga di halaman. Bunga itu tampak segar setelah mendapat air.',listen:'Pagi ini, Beni menyiram bunga di halaman. Bunga itu tampak segar setelah mendapat air.',o:['Beni menyiram bunga','Beni bermain bola','Beni membaca buku'],a:0,e:'Informasi penting dalam cerita adalah Beni menyiram bunga di halaman.'},
+        {d:2,p:'Kalimat yang tepat untuk mengakhiri kalimat berita adalah …',o:['Tanda titik (.)','Tanda tanya (?)','Tanda seru (!)'],a:0,e:'Kalimat berita biasanya diakhiri tanda titik. Tanda tanya digunakan untuk pertanyaan.'}
+      ],
+      mtk:[
+        {d:1,p:'Ada 3 apel. Ibu memberi 2 apel lagi. Berapa jumlah apel sekarang?',o:['4','5','6'],a:1,e:'3 + 2 = 5. Menggabungkan dua kelompok benda berarti menjumlahkan.'},
+        {d:1,p:'Bilangan yang tepat sebelum 8 adalah …',o:['6','7','9'],a:1,e:'Urutan bilangan adalah 6, 7, 8, 9. Jadi sebelum 8 adalah 7.'},
+        {d:2,p:'Bangun datar yang mempunyai 3 sisi disebut …',o:['Persegi','Lingkaran','Segitiga'],a:2,e:'Segitiga mempunyai tiga sisi dan tiga titik sudut.'}
+      ],
+      ipas:[
+        {d:1,p:'Apa yang dibutuhkan tanaman agar dapat tumbuh dengan baik?',o:['Air dan cahaya matahari','Plastik dan kaca','Asap dan debu'],a:0,e:'Tanaman memerlukan air, cahaya matahari, udara, dan unsur hara untuk tumbuh. Untuk kelas 1–2, topik ini menjadi pengenalan lingkungan terintegrasi.'},
+        {d:1,p:'Bagian tubuh yang kita gunakan untuk melihat adalah …',o:['Telinga','Mata','Hidung'],a:1,e:'Mata adalah indra penglihatan. Kita menggunakannya untuk melihat bentuk, warna, dan cahaya.'},
+        {d:2,p:'Manakah contoh cara menjaga lingkungan rumah?',o:['Membuang sampah ke sungai','Membiarkan keran terbuka','Membuang sampah pada tempatnya'],a:2,e:'Membuang sampah pada tempatnya membantu menjaga kebersihan dan kesehatan lingkungan.'}
+      ],
+      pancasila:[
+        {d:1,p:'Lambang sila pertama Pancasila adalah …',o:['Bintang','Pohon beringin','Kepala banteng'],a:0,e:'Sila pertama, Ketuhanan Yang Maha Esa, dilambangkan dengan bintang.'},
+        {d:1,p:'Warna bendera negara Indonesia adalah …',o:['Merah dan putih','Biru dan putih','Merah dan kuning'],a:0,e:'Bendera Indonesia berwarna merah di bagian atas dan putih di bagian bawah.'},
+        {d:2,p:'Contoh sikap saling membantu di rumah adalah …',o:['Membiarkan adik kesulitan','Membantu merapikan mainan bersama','Mengejek anggota keluarga'],a:1,e:'Saling membantu menunjukkan kepedulian dan kerja sama dalam keluarga.'}
+      ],
+      pai:[
+        {d:1,p:'Ucapan salam yang diajarkan dalam Islam adalah …',o:['Selamat tidur','Assalamu’alaikum','Sampai jumpa'],a:1,e:'Assalamu’alaikum adalah salam yang bermakna doa keselamatan bagi orang lain.'},
+        {d:1,p:'Sebelum memulai kegiatan baik, umat Islam dianjurkan membaca …',o:['Bismillah','Sampai jumpa','Selamat malam'],a:0,e:'Bismillah berarti “Dengan nama Allah”. Membacanya mengingatkan kita untuk memulai kebaikan dengan niat baik.'},
+        {d:2,p:'Ketika teman terjatuh, sikap terpuji yang sebaiknya kita lakukan adalah …',o:['Menertawakan','Membantu dan bertanya keadaannya','Meninggalkannya'],a:1,e:'Menolong teman adalah contoh akhlak terpuji, yaitu peduli dan berbuat baik kepada sesama.'}
+      ],
+      pjok:[
+        {d:1,p:'Sebelum berolahraga, kita sebaiknya melakukan …',o:['Pemanasan','Langsung tidur','Makan sebanyak-banyaknya'],a:0,e:'Pemanasan mempersiapkan otot dan tubuh sebelum bergerak sehingga membantu mengurangi risiko cedera.'},
+        {d:1,p:'Agar tubuh tetap sehat, kita perlu …',o:['Jarang bergerak','Berolahraga teratur','Tidur sangat larut setiap hari'],a:1,e:'Aktivitas fisik teratur membantu menjaga kebugaran dan kesehatan tubuh.'},
+        {d:2,p:'Setelah bermain dan sebelum makan, kebiasaan yang baik adalah …',o:['Mencuci tangan','Memegang makanan dengan tangan kotor','Tidak perlu membersihkan diri'],a:0,e:'Mencuci tangan dengan sabun membantu mengurangi kuman yang dapat menyebabkan penyakit.'}
+      ],
+      english:[
+        {d:1,p:'Apa arti ungkapan “Good morning”?',o:['Selamat pagi','Selamat malam','Sampai jumpa'],a:0,e:'“Good morning” digunakan untuk menyapa seseorang pada pagi hari. Ini adalah pengayaan kosakata awal untuk Fase A.'},
+        {d:1,p:'Which word means “buku”?',o:['Pencil','Book','Bag'],a:1,e:'“Book” berarti buku. “Pencil” berarti pensil dan “bag” berarti tas.'},
+        {d:2,p:'Complete the greeting: “Hello, my … is Rani.”',o:['name','red','run'],a:0,e:'Kalimat yang benar adalah “Hello, my name is Rani” yang berarti “Halo, nama saya Rani”.'}
+      ],
+      seni:[
+        {d:1,p:'Warna primer yang dapat dicampur untuk menghasilkan warna jingga adalah …',o:['Merah dan kuning','Biru dan hijau','Hitam dan putih'],a:0,e:'Campuran warna merah dan kuning menghasilkan warna jingga/oranye.'},
+        {d:1,p:'Alat yang biasa digunakan untuk mewarnai gambar di kertas adalah …',o:['Krayon','Sendok','Penggaris besi'],a:0,e:'Krayon adalah salah satu alat untuk memberi warna pada gambar.'},
+        {d:2,p:'Garis yang memiliki dua ujung dan tidak melengkung disebut garis …',o:['Lurus','Gelombang','Lengkung'],a:0,e:'Garis lurus membentang tanpa lengkungan. Garis merupakan salah satu unsur dasar seni rupa.'}
+      ]
+    },
+    B:{
+      bi:[
+        {d:2,p:'Bacalah teks berikut. Apa gagasan utamanya?',passage:'Setiap Jumat, siswa kelas IV merawat taman sekolah. Mereka menyiram tanaman, mencabut rumput liar, dan mengumpulkan daun kering. Taman menjadi bersih dan nyaman.',o:['Siswa merawat taman sekolah setiap Jumat','Siswa bermain di lapangan','Taman sekolah ditutup'],a:0,e:'Gagasan utama adalah pokok pembicaraan teks. Semua kalimat menjelaskan kegiatan merawat taman setiap Jumat.'},
+        {d:2,p:'Dengarkan informasi berikut. Kapan perpustakaan kelas dibuka?',passage:'Perpustakaan kelas dibuka setiap hari sekolah pada waktu istirahat. Murid boleh membaca dan meminjam satu buku.',listen:'Perpustakaan kelas dibuka setiap hari sekolah pada waktu istirahat. Murid boleh membaca dan meminjam satu buku.',o:['Saat pelajaran berlangsung','Pada waktu istirahat','Pada malam hari'],a:1,e:'Informasi waktu pada teks aural disebutkan secara langsung: perpustakaan dibuka pada waktu istirahat.'},
+        {d:3,p:'Kalimat yang menggunakan kata baku adalah …',o:['Adik membeli obat di apotek.','Adik membeli obat di apotik.','Adik membeli obat di apoték.'],a:0,e:'Bentuk baku menurut kaidah bahasa Indonesia adalah “apotek”.'}
+      ],
+      mtk:[
+        {d:2,p:'Hasil dari 6 × 7 adalah …',o:['36','42','48'],a:1,e:'6 × 7 = 42. Perkalian dapat dipahami sebagai penjumlahan berulang sebanyak tujuh kelompok enam.'},
+        {d:2,p:'Satu bagian dari empat bagian sama besar ditulis …',o:['1/2','1/3','1/4'],a:2,e:'Satu dari empat bagian sama besar disebut satu per empat atau 1/4.'},
+        {d:3,p:'Sebuah persegi panjang panjangnya 8 cm dan lebarnya 3 cm. Kelilingnya adalah …',o:['11 cm','22 cm','24 cm'],a:1,e:'Keliling = 2 × (panjang + lebar) = 2 × (8 + 3) = 22 cm.'}
+      ],
+      ipas:[
+        {d:2,p:'Indra yang berfungsi untuk mendengar bunyi adalah …',o:['Mata','Telinga','Kulit'],a:1,e:'Telinga menerima getaran bunyi dan membantu kita mendengar. Rawat telinga dan gunakan volume audio yang aman.'},
+        {d:2,p:'Tahap awal daur hidup kupu-kupu adalah …',o:['Telur','Kepompong','Kupu-kupu dewasa'],a:0,e:'Daur hidup kupu-kupu dimulai dari telur, kemudian ulat, kepompong, lalu kupu-kupu dewasa.'},
+        {d:3,p:'Dalam rantai makanan rumput → belalang → katak, belalang berperan sebagai …',o:['Produsen','Konsumen tingkat I','Pengurai'],a:1,e:'Belalang memakan rumput sebagai produsen, sehingga belalang merupakan konsumen tingkat I.'}
+      ],
+      pancasila:[
+        {d:2,p:'Contoh kewajiban murid di sekolah adalah …',o:['Mendapat perlindungan','Menjaga kebersihan kelas','Mendapat pelajaran'],a:1,e:'Menjaga kebersihan kelas adalah kewajiban yang dilakukan bersama. Mendapat pelajaran dan perlindungan termasuk hak.'},
+        {d:2,p:'Dengarkan situasi berikut. Sikap apa yang menunjukkan menghargai perbedaan?',passage:'Di kelas, teman-teman memiliki bahasa daerah dan kebiasaan keluarga yang berbeda. Saat seorang teman bercerita, semua mendengarkan dengan sopan.',listen:'Di kelas, teman-teman memiliki bahasa daerah dan kebiasaan keluarga yang berbeda. Saat seorang teman bercerita, semua mendengarkan dengan sopan.',o:['Menertawakan logatnya','Meminta teman berhenti bercerita','Mendengarkan dan menghormatinya'],a:2,e:'Menghargai perbedaan berarti bersikap sopan dan memberi ruang bagi teman untuk bercerita.'},
+        {d:3,p:'Keputusan bersama dalam kelompok sebaiknya diambil melalui …',o:['Musyawarah','Paksaan satu orang','Pertengkaran'],a:0,e:'Musyawarah memberi kesempatan anggota menyampaikan pendapat dan mencari kesepakatan.'}
+      ],
+      pai:[
+        {d:2,p:'Salah satu hal yang membatalkan wudu adalah …',o:['Membaca buku','Buang air kecil','Mendengarkan nasihat'],a:1,e:'Buang air kecil termasuk hal yang membatalkan wudu. Setelah itu, seseorang berwudu kembali sebelum salat.'},
+        {d:2,p:'Sikap jujur berarti …',o:['Mengatakan sesuatu sesuai kenyataan','Menyembunyikan kesalahan dengan berbohong','Mengambil barang teman'],a:0,e:'Jujur berarti berkata dan bertindak sesuai kenyataan. Kejujuran membangun kepercayaan.'},
+        {d:3,p:'Surah Al-Ikhlas menjelaskan tentang …',o:['Keesaan Allah','Kisah perjalanan laut','Aturan jual beli'],a:0,e:'Surah Al-Ikhlas menegaskan bahwa Allah Maha Esa dan tidak ada sesuatu pun yang setara dengan-Nya.'}
+      ],
+      pjok:[
+        {d:2,p:'Gerakan berpindah tempat seperti berjalan dan berlari disebut gerak …',o:['Lokomotor','Nonlokomotor','Manipulatif'],a:0,e:'Gerak lokomotor adalah gerak yang menyebabkan tubuh berpindah tempat, misalnya berjalan, berlari, dan melompat.'},
+        {d:2,p:'Makanan yang baik untuk membantu pertumbuhan tubuh adalah …',o:['Makanan beragam dan bergizi seimbang','Permen saja','Minuman bersoda saja'],a:0,e:'Tubuh memerlukan makanan beragam dan bergizi seimbang, termasuk sumber energi, protein, vitamin, mineral, dan air.'},
+        {d:3,p:'Saat bermain sepak bola, menghormati keputusan wasit menunjukkan sikap …',o:['Sportif','Curang','Tidak peduli'],a:0,e:'Sportivitas berarti bermain jujur, menaati aturan, dan menghargai lawan maupun wasit.'}
+      ],
+      english:[
+        {d:2,p:'Choose the correct response. “How are you?”',o:['I am fine, thank you.','My name is a pencil.','Good night yesterday.'],a:0,e:'Pertanyaan “How are you?” menanyakan kabar. Jawaban yang sesuai adalah “I am fine, thank you”.'},
+        {d:2,p:'What is the English word for “perpustakaan”?',o:['Classroom','Library','Kitchen'],a:1,e:'“Library” berarti perpustakaan. “Classroom” adalah ruang kelas dan “kitchen” adalah dapur.'},
+        {d:3,p:'Complete the sentence: “She … a red bag.”',o:['have','has','are'],a:1,e:'Untuk subjek “she” dalam kalimat simple present, bentuk yang tepat adalah “has”.'}
+      ],
+      seni:[
+        {d:2,p:'Merah, jingga, dan kuning termasuk kelompok warna …',o:['Hangat','Dingin','Netral saja'],a:0,e:'Warna merah, jingga, dan kuning sering dikelompokkan sebagai warna hangat karena memberi kesan hangat dan berenergi.'},
+        {d:2,p:'Permukaan kulit kayu yang terasa kasar menunjukkan unsur rupa berupa …',o:['Tekstur','Ruang','Nada'],a:0,e:'Tekstur adalah sifat permukaan suatu benda, misalnya kasar, halus, licin, atau bergelombang.'},
+        {d:3,p:'Pengulangan bentuk secara teratur dalam karya dapat menghasilkan …',o:['Pola atau irama visual','Bunyi keras','Aroma'],a:0,e:'Pengulangan unsur rupa dapat membentuk pola dan irama visual yang membuat karya terasa teratur.'}
+      ]
+    },
+    C:{
+      bi:[
+        {d:3,p:'Bacalah paragraf berikut. Pernyataan yang merupakan fakta adalah …',passage:'Hutan mangrove tumbuh di wilayah pesisir. Akarnya dapat membantu mengurangi abrasi. Menurut saya, mangrove adalah tanaman paling indah di dunia.',o:['Mangrove tumbuh di wilayah pesisir.','Mangrove adalah tanaman paling indah.','Semua orang menyukai mangrove.'],a:0,e:'Fakta dapat dibuktikan kebenarannya. “Mangrove tumbuh di wilayah pesisir” merupakan informasi yang dapat diverifikasi; “paling indah” adalah pendapat.'},
+        {d:3,p:'Dengarkan teks berikut. Mengapa warga membuat lubang biopori?',passage:'Warga membuat lubang biopori di halaman untuk membantu air hujan meresap ke tanah. Daun kering juga dapat dimasukkan agar terurai menjadi kompos.',listen:'Warga membuat lubang biopori di halaman untuk membantu air hujan meresap ke tanah. Daun kering juga dapat dimasukkan agar terurai menjadi kompos.',o:['Agar air hujan lebih mudah meresap','Agar halaman tertutup semen','Agar daun menjadi plastik'],a:0,e:'Teks menyatakan tujuan biopori adalah membantu air hujan meresap ke tanah. Daun kering dapat terurai menjadi kompos.'},
+        {d:3,p:'Simpulan yang baik dalam sebuah laporan harus …',o:['Sesuai informasi dan hasil pengamatan','Berisi pendapat tanpa bukti','Memuat informasi yang tidak berkaitan'],a:0,e:'Simpulan merangkum informasi penting berdasarkan data atau hasil pengamatan dalam laporan.'}
+      ],
+      mtk:[
+        {d:3,p:'Bentuk desimal dari 3/4 adalah …',o:['0,25','0,5','0,75'],a:2,e:'3 ÷ 4 = 0,75. Jadi tiga per empat sama dengan 0,75 atau 75%.'},
+        {d:3,p:'Sebuah persegi memiliki sisi 9 cm. Luasnya adalah …',o:['18 cm²','81 cm²','36 cm²'],a:1,e:'Luas persegi = sisi × sisi = 9 × 9 = 81 cm².'},
+        {d:3,p:'Rata-rata dari 6, 8, dan 10 adalah …',o:['7','8','9'],a:1,e:'Rata-rata = jumlah data ÷ banyak data = (6 + 8 + 10) ÷ 3 = 24 ÷ 3 = 8.'}
+      ],
+      ipas:[
+        {d:3,p:'Dalam ekosistem sawah, padi berperan sebagai …',o:['Produsen','Konsumen tingkat II','Pengurai'],a:0,e:'Padi membuat makanannya sendiri melalui fotosintesis sehingga berperan sebagai produsen.'},
+        {d:3,p:'Mengapa bayangan benda berubah posisi sepanjang hari?',o:['Karena posisi semu Matahari berubah','Karena benda selalu bergerak','Karena warna benda berubah'],a:0,e:'Posisi semu Matahari tampak berubah sepanjang hari akibat rotasi Bumi. Arah dan panjang bayangan pun berubah.'},
+        {d:3,p:'Upaya yang tepat untuk mengurangi sampah plastik sekali pakai adalah …',o:['Membawa botol minum dan tas pakai ulang','Memakai lebih banyak kantong plastik','Membakar semua sampah plastik'],a:0,e:'Menggunakan barang pakai ulang mengurangi kebutuhan plastik sekali pakai. Membakar plastik dapat mencemari udara.'}
+      ],
+      pancasila:[
+        {d:3,p:'Dalam musyawarah, pendapat yang berbeda sebaiknya …',o:['Didengarkan dan dipertimbangkan','Langsung ditolak','Dijadikan bahan ejekan'],a:0,e:'Menghargai pendapat adalah bagian dari musyawarah. Keputusan bersama perlu mempertimbangkan kepentingan kelompok.'},
+        {d:3,p:'Contoh pelaksanaan hak dan kewajiban secara seimbang di sekolah adalah …',o:['Menuntut kelas bersih tetapi tidak mau piket','Belajar dengan nyaman dan ikut menjaga ketertiban','Menggunakan fasilitas tanpa merawatnya'],a:1,e:'Murid berhak belajar dengan nyaman dan berkewajiban menjaga ketertiban serta fasilitas sekolah.'},
+        {d:3,p:'Semboyan Bhinneka Tunggal Ika mengajarkan bahwa …',o:['Perbedaan dapat hidup dalam persatuan','Semua orang harus memiliki kebiasaan sama','Perbedaan harus dihindari'],a:0,e:'Bhinneka Tunggal Ika berarti berbeda-beda tetapi tetap satu. Keberagaman menjadi kekuatan persatuan.'}
+      ],
+      pai:[
+        {d:3,p:'Zakat, infak, dan sedekah mengajarkan umat Islam untuk …',o:['Peduli dan membantu sesama','Menyombongkan harta','Mengabaikan orang yang membutuhkan'],a:0,e:'Zakat, infak, dan sedekah menumbuhkan kepedulian sosial dan membantu orang yang membutuhkan.'},
+        {d:3,p:'Perilaku amanah ditunjukkan dengan cara …',o:['Menjaga titipan dan menunaikan tanggung jawab','Menggunakan barang titipan sesuka hati','Mengingkari janji'],a:0,e:'Amanah berarti dapat dipercaya, menjaga titipan, serta melaksanakan tanggung jawab dengan baik.'},
+        {d:3,p:'Sikap tabayyun saat menerima kabar yang belum jelas berarti …',o:['Memeriksa kebenaran informasi terlebih dahulu','Langsung menyebarkannya','Menambahkan cerita sendiri'],a:0,e:'Tabayyun adalah memeriksa dan memastikan kebenaran informasi agar tidak menyebarkan berita keliru.'}
+      ],
+      pjok:[
+        {d:3,p:'Mengapa pendinginan dilakukan setelah aktivitas fisik?',o:['Membantu tubuh kembali ke kondisi istirahat secara bertahap','Agar tubuh langsung berhenti mendadak','Agar tidak perlu minum'],a:0,e:'Pendinginan membantu tubuh menurunkan intensitas aktivitas secara bertahap setelah olahraga.'},
+        {d:3,p:'Denyut nadi biasanya meningkat ketika kita …',o:['Melakukan aktivitas fisik intensif','Tidur nyenyak','Duduk santai tanpa bergerak'],a:0,e:'Saat beraktivitas, otot membutuhkan lebih banyak oksigen sehingga jantung memompa darah lebih cepat.'},
+        {d:3,p:'Ketika teman mengalami cedera saat olahraga, tindakan awal yang tepat adalah …',o:['Menghentikan aktivitas dan meminta bantuan orang dewasa/guru','Memaksanya melanjutkan permainan','Mengabaikan keluhannya'],a:0,e:'Hentikan aktivitas dan minta bantuan guru atau petugas kesehatan. Jangan memaksakan bagian tubuh yang cedera.'}
+      ],
+      english:[
+        {d:3,p:'Read the sentence: “The library is next to the classroom.” Where is the library?',o:['Beside the classroom','Under the classroom','Inside the bag'],a:0,e:'“Next to” means beside or di sebelah. Jadi perpustakaan berada di sebelah ruang kelas.'},
+        {d:3,p:'Choose the correct sentence.',o:['They is playing football.','They are playing football.','They am playing football.'],a:1,e:'Subjek “they” menggunakan “are”. Bentuk yang benar adalah “They are playing football”.'},
+        {d:3,p:'What is the main purpose of a descriptive text?',o:['To describe a person, place, or thing','To give a list of mathematics answers','To tell only future plans'],a:0,e:'Descriptive text bertujuan menggambarkan orang, tempat, atau benda melalui ciri-cirinya.'}
+      ],
+      seni:[
+        {d:3,p:'Perbedaan terang dan gelap dalam karya seni rupa disebut …',o:['Kontras nilai gelap-terang','Irama bunyi','Arah angin'],a:0,e:'Kontras gelap-terang memberi kesan volume, kedalaman, dan penekanan pada karya.'},
+        {d:3,p:'Dalam gambar perspektif sederhana, benda yang jauh biasanya digambarkan …',o:['Lebih kecil','Lebih besar','Selalu lebih terang'],a:0,e:'Dalam perspektif, benda yang tampak jauh biasanya digambar lebih kecil untuk memberi kesan ruang.'},
+        {d:3,p:'Sebelum membuat karya dari bahan bekas, hal penting yang perlu dilakukan adalah …',o:['Memilih dan membersihkan bahan dengan aman','Menggunakan bahan tajam tanpa bantuan','Membuang semua bahan yang dapat dipakai'],a:0,e:'Memilih bahan yang aman dan membersihkannya membantu proses berkarya menjadi lebih sehat dan bertanggung jawab.'}
+      ]
+    }
+  };
+
+  // Bank pengayaan: 10 kompetensi x 3 bentuk pertanyaan = 30 butir per mapel/fase.
+  // Pertanyaan dibuat dari konsep inti, bukan sekadar mengulang tiga contoh awal.
+  const FACTS = {
+    bi: [
+      ['Huruf kapital digunakan pada awal kalimat','Huruf kapital','huruf kecil','angka','Huruf kapital digunakan pada awal kalimat dan nama diri.'],
+      ['Tanda baca untuk mengakhiri kalimat tanya','Tanda tanya (?)','Tanda titik (.)','Tanda koma (,)','Kalimat tanya diakhiri tanda tanya.'],
+      ['Kata yang memiliki arti berlawanan dengan “tinggi”','rendah','luas','panjang','“Rendah” merupakan antonim dari “tinggi”.'],
+      ['Kata yang memiliki arti mirip dengan “gembira”','senang','sedih','marah','“Senang” bersinonim dengan “gembira”.'],
+      ['Unsur cerita yang menunjukkan tempat kejadian','Latar tempat','Tokoh','Amanat','Latar tempat menjelaskan lokasi peristiwa dalam cerita.'],
+      ['Orang atau pelaku dalam cerita disebut','Tokoh','Latar','Judul','Tokoh adalah pelaku yang mengalami peristiwa dalam cerita.'],
+      ['Kalimat yang berisi ajakan biasanya menggunakan kata','Ayo','Karena','Tetapi','Kata “ayo” dapat digunakan untuk mengajak seseorang.'],
+      ['Informasi utama dalam sebuah paragraf disebut','Gagasan pokok','Hiasan tulisan','Tanda baca','Gagasan pokok adalah inti pembahasan paragraf.'],
+      ['Teks yang berisi langkah membuat atau melakukan sesuatu disebut','Teks prosedur','Teks puisi','Teks dongeng','Teks prosedur menyajikan tujuan dan langkah-langkah.'],
+      ['Kata tanya untuk menanyakan alasan adalah','Mengapa','Siapa','Kapan','“Mengapa” digunakan untuk menanyakan sebab atau alasan.']
+    ],
+    mtk: [
+      ['Hasil dari 8 + 7','15','14','16','Penjumlahan 8 dan 7 menghasilkan 15.'],
+      ['Hasil dari 20 − 6','14','13','16','20 dikurangi 6 sama dengan 14.'],
+      ['Hasil dari 4 × 5','20','9','25','Perkalian 4 × 5 sama dengan 20.'],
+      ['Hasil dari 24 ÷ 6','4','6','5','24 dibagi 6 sama dengan 4.'],
+      ['Bangun datar yang memiliki empat sisi sama panjang dan empat sudut siku-siku','Persegi','Segitiga','Lingkaran','Persegi mempunyai empat sisi sama panjang dan empat sudut siku-siku.'],
+      ['Satuan yang tepat untuk mengukur panjang pensil','Sentimeter','Kilogram','Liter','Panjang benda kecil seperti pensil dapat diukur dalam sentimeter.'],
+      ['Satuan untuk mengukur berat atau massa beras','Kilogram','Meter','Detik','Kilogram digunakan untuk menyatakan massa benda.'],
+      ['Pecahan yang menunjukkan satu dari dua bagian sama besar','1/2','1/3','1/4','Satu dari dua bagian sama besar ditulis 1/2.'],
+      ['Bilangan genap di antara 11 dan 15','12','13','15','12 adalah bilangan genap karena habis dibagi dua.'],
+      ['Bangun ruang yang memiliki enam sisi berbentuk persegi','Kubus','Kerucut','Bola','Kubus memiliki enam sisi berbentuk persegi yang sama besar.']
+    ],
+    ipas: [
+      ['Sumber energi utama bagi kehidupan di Bumi','Matahari','Bulan','Batu','Matahari memberi cahaya dan panas yang penting bagi kehidupan.'],
+      ['Bagian tumbuhan yang menyerap air dari tanah','Akar','Bunga','Buah','Akar menyerap air dan mineral dari tanah.'],
+      ['Proses tumbuhan membuat makanan dengan bantuan cahaya','Fotosintesis','Penguapan','Pencernaan','Fotosintesis menggunakan cahaya, air, dan karbon dioksida untuk membuat makanan.'],
+      ['Perubahan air menjadi uap karena panas disebut','Penguapan','Pembekuan','Pengembunan','Penguapan adalah perubahan wujud cair menjadi gas.'],
+      ['Hewan pemakan tumbuhan disebut','Herbivor','Karnivor','Omnivor','Herbivor memperoleh makanan dari tumbuhan.'],
+      ['Contoh sumber daya alam yang dapat diperbarui','Tumbuhan','Minyak bumi','Batu bara','Tumbuhan dapat ditanam kembali sehingga termasuk sumber daya yang dapat diperbarui.'],
+      ['Organ tubuh yang memompa darah','Jantung','Paru-paru','Lambung','Jantung memompa darah ke seluruh tubuh.'],
+      ['Planet tempat manusia hidup','Bumi','Mars','Jupiter','Bumi adalah planet tempat kita tinggal.'],
+      ['Kegiatan yang membantu menghemat air','Menutup keran setelah digunakan','Membiarkan keran mengalir','Bermain air terlalu lama','Menutup keran mencegah air terbuang sia-sia.'],
+      ['Hubungan makan dan dimakan ant makhluk hidup disebut','Rantai makanan','Daur air','Rotasi','Rantai makanan menunjukkan perpindahan energi melalui proses makan dan dimakan.']
+    ],
+    pancasila: [
+      ['Lambang sila kedua Pancasila','Rantai','Bintang','Pohon beringin','Rantai melambangkan sila kedua: Kemanusiaan yang Adil dan Beradab.'],
+      ['Lambang sila ketiga Pancasila','Pohon beringin','Kepala banteng','Padi dan kapas','Pohon beringin melambangkan Persatuan Indonesia.'],
+      ['Lambang sila keempat Pancasila','Kepala banteng','Bintang','Rantai','Kepala banteng melambangkan kerakyatan dan musyawarah.'],
+      ['Lambang sila kelima Pancasila','Padi dan kapas','Pohon beringin','Bintang','Padi dan kapas melambangkan keadilan sosial dan kesejahteraan.'],
+      ['Sikap yang tepat saat teman berbeda agama sedang beribadah','Menghormati dan tidak mengganggu','Mengejek','Memaksanya berhenti','Menghormati ibadah orang lain mencerminkan toleransi.'],
+      ['Aturan dibuat agar kehidupan bersama menjadi','Tertib dan aman','Kacau','Tidak adil','Aturan membantu menjaga ketertiban, keselamatan, dan keadilan.'],
+      ['Kegiatan mengambil keputusan bersama melalui diskusi disebut','Musyawarah','Kompetisi','Hukuman','Musyawarah dilakukan dengan mendengarkan pendapat untuk mencapai kesepakatan.'],
+      ['Semboyan bangsa Indonesia','Bhinneka Tunggal Ika','Tut Wuri Handayani','Ing Ngarsa Sung Tuladha','Bhinneka Tunggal Ika berarti berbeda-beda tetapi tetap satu.'],
+      ['Contoh kewajiban anak di rumah','Membantu sesuai kemampuan','Meminta dilayani terus','Merusak barang','Setiap anggota keluarga dapat membantu sesuai usia dan kemampuannya.'],
+      ['Contoh menjaga persatuan di sekolah','Bekerja sama dengan semua teman','Memilih teman berdasarkan asal','Mengejek bahasa daerah','Kerja sama dan saling menghargai memperkuat persatuan.']
+    ],
+    pai: [
+      ['Kitab suci umat Islam','Al-Qur’an','Injil','Weda','Al-Qur’an adalah kitab suci umat Islam.'],
+      ['Nabi terakhir dalam ajaran Islam','Nabi Muhammad saw.','Nabi Musa a.s.','Nabi Ibrahim a.s.','Nabi Muhammad saw. adalah nabi dan rasul terakhir.'],
+      ['Jumlah rukun Islam','Lima','Empat','Enam','Rukun Islam berjumlah lima.'],
+      ['Jumlah rakaat salat Subuh','Dua','Tiga','Empat','Salat Subuh terdiri atas dua rakaat.'],
+      ['Sikap berkata sesuai kenyataan disebut','Jujur','Sombong','Iri','Jujur berarti berkata dan bertindak sesuai kenyataan.'],
+      ['Sikap menjaga titipan dengan baik disebut','Amanah','Boros','Dengki','Amanah berarti dapat dipercaya dan menjaga tanggung jawab.'],
+      ['Ucapan sebelum makan yang dianjurkan','Bismillah','Astaghfirullah setelah selesai','Selamat malam','Membaca basmalah dianjurkan sebelum memulai makan.'],
+      ['Hari raya setelah menjalankan puasa Ramadan','Idulfitri','Iduladha','Tahun Baru','Idulfitri dirayakan setelah bulan Ramadan.'],
+      ['Perbuatan membantu orang yang membutuhkan mencerminkan','Kepedulian','Kesombongan','Permusuhan','Islam mengajarkan kepedulian dan tolong-menolong dalam kebaikan.'],
+      ['Bersuci sebelum melaksanakan salat disebut','Taharah','Tidur','Berdagang','Taharah berarti bersuci dari hadas dan najis sesuai ketentuan.']
+    ],
+    pjok: [
+      ['Gerakan berpindah tempat seperti berjalan disebut gerak','Lokomotor','Nonlokomotor','Diam','Gerak lokomotor menyebabkan tubuh berpindah tempat.'],
+      ['Gerakan menekuk dan memutar badan tanpa berpindah tempat disebut','Nonlokomotor','Lokomotor','Manipulatif','Gerak nonlokomotor dilakukan tanpa berpindah tempat.'],
+      ['Gerakan melempar dan menangkap bola termasuk gerak','Manipulatif','Nonlokomotor','Istirahat','Gerak manipulatif melibatkan penguasaan benda atau alat.'],
+      ['Kegiatan sebelum olahraga untuk menyiapkan otot','Pemanasan','Langsung sprint','Pendinginan','Pemanasan menyiapkan tubuh secara bertahap sebelum aktivitas inti.'],
+      ['Kegiatan setelah olahraga untuk menurunkan intensitas gerak','Pendinginan','Pemanasan','Lomba cepat','Pendinginan membantu tubuh kembali ke kondisi istirahat secara bertahap.'],
+      ['Minuman terbaik untuk mengganti cairan tubuh sehari-hari','Air putih','Minuman bersoda','Sirup sangat manis','Air putih membantu memenuhi kebutuhan cairan tubuh.'],
+      ['Kebiasaan menjaga kebersihan gigi','Menyikat gigi teratur','Tidak pernah menyikat gigi','Berbagi sikat gigi','Menyikat gigi teratur membantu menjaga kesehatan gigi dan mulut.'],
+      ['Sikap menghargai lawan dan menaati aturan permainan disebut','Sportivitas','Kecurangan','Egois','Sportivitas berarti jujur dan menghargai semua peserta.'],
+      ['Jika merasa pusing saat olahraga, tindakan tepat adalah','Berhenti dan memberi tahu guru','Memaksakan diri','Menyembunyikannya','Berhenti dan meminta bantuan menjaga keselamatan diri.'],
+      ['Makanan beragam dengan zat gizi seimbang membantu tubuh','Tumbuh dan tetap sehat','Selalu mengantuk','Tidak membutuhkan air','Gizi seimbang mendukung pertumbuhan, energi, dan kesehatan.']
+    ],
+    english: [
+      ['The English word for “apel”','Apple','Chair','Window','“Apple” means apel.'],
+      ['The English word for “kucing”','Cat','Dog','Bird','“Cat” means kucing.'],
+      ['The correct greeting in the morning','Good morning','Good night','Goodbye','“Good morning” is used in the morning.'],
+      ['The meaning of “Thank you”','Terima kasih','Maaf','Sampai jumpa','“Thank you” is used to express gratitude.'],
+      ['The opposite of “big”','Small','Tall','Long','“Small” is the opposite of “big”.'],
+      ['The plural form of “book”','Books','Bookes','Bookies','For most nouns, add -s to form the plural: book → books.'],
+      ['Complete: “I ___ a student.”','am','is','are','Use “am” with the subject “I”.'],
+      ['Complete: “She ___ my friend.”','is','am','are','Use “is” with “he”, “she”, or “it”.'],
+      ['The English word for “perpustakaan”','Library','Market','Garden','“Library” means perpustakaan.'],
+      ['The meaning of “Please sit down.”','Silakan duduk.','Silakan berlari.','Selamat tidur.','“Please sit down” is a polite instruction to take a seat.']
+    ],
+    seni: [
+      ['Unsur rupa berupa goresan memanjang disebut','Garis','Ruang','Tekstur','Garis merupakan unsur rupa berupa goresan yang memiliki arah.'],
+      ['Unsur rupa yang menunjukkan kesan permukaan kasar atau halus disebut','Tekstur','Warna','Bentuk','Tekstur berkaitan dengan sifat permukaan suatu benda.'],
+      ['Warna hasil campuran merah dan kuning','Jingga','Hijau','Ungu','Merah dan kuning jika dicampur menghasilkan jingga.'],
+      ['Warna hasil campuran biru dan kuning','Hijau','Merah','Jingga','Biru dan kuning jika dicampur menghasilkan hijau.'],
+      ['Alat untuk mengoleskan cat air pada kertas','Kuas','Penghapus','Gunting kuku','Kuas digunakan untuk mengoleskan cat atau pewarna cair.'],
+      ['Bahan yang dapat digunakan untuk membuat kolase','Potongan kertas','Air minum saja','Asap','Kolase dibuat dengan menempelkan berbagai bahan pada bidang dasar.'],
+      ['Karya seni rupa yang memiliki panjang, lebar, dan tinggi disebut','Karya tiga dimensi','Karya dua dimensi','Sketsa garis saja','Karya tiga dimensi memiliki volume atau isi.'],
+      ['Karya gambar pada bidang datar termasuk karya','Dua dimensi','Tiga dimensi','Empat dimensi','Gambar pada kertas memiliki panjang dan lebar.'],
+      ['Susunan unsur rupa yang terasa seimbang disebut','Komposisi seimbang','Warna acak tanpa tujuan','Bahan terbuang','Komposisi mengatur letak unsur agar karya terasa padu dan seimbang.'],
+      ['Bahan bekas yang bersih dapat dimanfaatkan untuk','Karya daur ulang','Dibuang ke sungai','Dibakar sembarangan','Pemanfaatan bahan bekas yang aman dapat mengurangi sampah dan menjadi karya kreatif.']
+    ]
+  };
+  function buildExpandedBank(){
+    for(const phase of ['A','B','C']){
+      for(const subject of Object.keys(SUBJECTS)){
+        const target=BANK[phase][subject];
+        FACTS[subject].forEach((fact,idx)=>{
+          const [concept,correct,w1,w2,explain]=fact;
+          const stems = phase==='A'
+            ? [`Manakah jawaban yang tepat tentang ${concept.toLowerCase()}?`,`Pilih jawaban yang benar: ${concept.toLowerCase()} adalah …`,`Jika belajar tentang ${concept.toLowerCase()}, jawaban yang tepat ialah …`]
+            : phase==='B'
+            ? [`Perhatikan materi berikut: ${concept}. Pilihan yang benar adalah …`,`Dalam pelajaran, kita mengenal bahwa ${concept.toLowerCase()}. Apa jawabannya?`,`Manakah pernyataan yang paling tepat terkait ${concept.toLowerCase()}?`]
+            : [`Analisis konsep berikut: ${concept}. Kesimpulan yang tepat adalah …`,`Untuk menerapkan pemahaman tentang ${concept.toLowerCase()}, pilih jawaban yang benar.`,`Pernyataan yang sesuai dengan konsep ${concept.toLowerCase()} adalah …`];
+          stems.forEach((stem,j)=>{
+            const opts=[correct,w1,w2];
+            const shift=(idx+j+(phase==='A'?0:phase==='B'?1:2))%3;
+            const shuffled=[opts[shift],opts[(shift+1)%3],opts[(shift+2)%3]];
+            const ans=shuffled.indexOf(correct);
+            target.push({d:phase==='A'?(j===2?2:1):phase==='B'?(j===2?3:2):3,p:stem,o:shuffled,a:ans,e:explain});
+          });
+        });
+      }
+    }
+  }
+  buildExpandedBank();
+
+  const $ = id => document.getElementById(id);
+  const LOCAL_KEY='petualangan_belajar_results_v1';
+  let currentStudent=null, currentSubject=null, currentPhase='A', quizQuestions=[], questionIndex=0, selectedAnswer=null, answerLocked=false, score=0, correctCount=0, adaptiveTarget=1, startTime=0, lastResult=null;
+  let db=null, auth=null, cloudReady=false, teacherCloudMode=false, unsubscribeResults=null, liveResults=[];
+  let narrationOn=localStorage.getItem('pb_narration')!=='false', sfxOn=localStorage.getItem('pb_sfx')!=='false';
+  let speechSupported=('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window);
+
+  const phaseForGrade = grade => grade<=2?'A':grade<=4?'B':'C';
+  function toast(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(toast._timer);toast._timer=setTimeout(()=>t.classList.remove('show'),2800)}
+  function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function showView(view){['homeView','quizView','resultView','teacherView'].forEach(id=>$(id).classList.toggle('hidden',id!==view));window.scrollTo({top:0,behavior:'smooth'})}
+  function loadLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'[]')}catch(e){return []}}
+  function saveLocal(result){const rows=loadLocal();rows.unshift(result);localStorage.setItem(LOCAL_KEY,JSON.stringify(rows.slice(0,1000)))}
+  function fmtDate(value){const d=value?.toDate?value.toDate():new Date(value||Date.now());return Number.isNaN(d.getTime())?'—':d.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})}
+  function setAudioToggles(){ $('narrationToggle').checked=narrationOn; $('sfxToggle').checked=sfxOn; }
+  function populateSubjects(){
+    $('studentSubject').innerHTML='<option value="">Pilih pelajaran</option>'+Object.entries(SUBJECTS).map(([k,v])=>`<option value="${k}">${v.icon} ${v.name}</option>`).join('');
+    $('subjectPreview').innerHTML=Object.entries(SUBJECTS).map(([k,v])=>`<div class="subject-chip" data-subject="${k}"><span>${v.icon}</span><b>${v.name}</b><small>${v.note}</small></div>`).join('');
+  }
+  function updatePhaseNotice(){const grade=Number($('studentGrade').value);if(!grade){$('phaseNotice').textContent='Pilih kelas untuk melihat fase dan tingkat tantangan.';return}const key=phaseForGrade(grade),p=PHASES[key];let msg=`${p.label} · ${p.grades} · Tantangan ${p.difficulty}. Materi akan dipilih sesuai perkembangan belajar fase ini.`;if(grade<=2)msg+=' IPAS dan Bahasa Inggris tersedia sebagai pengayaan/pengenalan untuk kelas 1–2.';$('phaseNotice').textContent=msg}
+  function sfx(kind){if(!sfxOn)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';const now=ctx.currentTime;osc.frequency.setValueAtTime(kind==='good'?660:kind==='bad'?220:510,now);if(kind==='good')osc.frequency.exponentialRampToValueAtTime(990,now+.14);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.12,now+.02);gain.gain.exponentialRampToValueAtTime(.0001,now+.24);osc.start(now);osc.stop(now+.25);osc.onended=()=>ctx.close()}catch(e){}}
+  function speakQuestion(q){if(!narrationOn)return;if(!speechSupported){$('audioSupport').textContent='Narasi tidak didukung browser ini.';return}window.speechSynthesis.cancel();const text=[q.listen||q.passage||'',q.p].filter(Boolean).join(' ');const utter=new SpeechSynthesisUtterance(text);utter.lang=currentSubject==='english'?'en-US':'id-ID';utter.rate=.9;utter.pitch=1;window.speechSynthesis.speak(utter)}
+  function makeQuiz(phase,subject){const pool=[...BANK[phase][subject]].sort(()=>Math.random()-.5);const total=Math.min(10,pool.length);quizQuestions=[];adaptiveTarget=PHASES[phase].base;for(let i=0;i<total;i++){pool.sort((a,b)=>Math.abs(a.d-adaptiveTarget)-Math.abs(b.d-adaptiveTarget));const windowSize=Math.min(6,pool.length);const pick=Math.floor(Math.random()*windowSize);const q=pool.splice(pick,1)[0];quizQuestions.push(q)}return quizQuestions}
+  function startQuiz(name,grade,subject){currentStudent={name,grade};currentSubject=subject;currentPhase=phaseForGrade(grade);quizQuestions=makeQuiz(currentPhase,subject);questionIndex=0;selectedAnswer=null;answerLocked=false;score=0;correctCount=0;startTime=Date.now();$('quizSubjectPill').textContent=SUBJECTS[subject].icon+' '+SUBJECTS[subject].name;$('quizWelcome').textContent=`Semangat, ${name}!`; $('quizGradeText').textContent=`Kelas ${grade} · ${PHASES[currentPhase].label} · ${PHASES[currentPhase].difficulty}`;showView('quizView');renderQuestion()}
+  function renderQuestion(){const q=quizQuestions[questionIndex];selectedAnswer=null;answerLocked=false;$('feedback').classList.add('hidden');$('nextBtn').disabled=true;$('nextBtn').textContent='Periksa jawaban ✨';$('questionPrompt').textContent=q.p;$('questionPassage').textContent=q.passage||'';$('questionPassage').classList.toggle('hidden',!q.passage);$('quizCount').textContent=`Soal ${questionIndex+1}/${quizQuestions.length}`;$('quizScoreNow').textContent=score;$('progressBar').style.width=`${questionIndex/quizQuestions.length*100}%`;$('qPhase').textContent=PHASES[currentPhase].label;$('qDifficulty').textContent=q.d===1?'Tantangan dasar':q.d===2?'Tantangan menengah':'Tantangan lanjutan';$('qType').textContent=q.listen?'Dengarkan lalu jawab':'Pilihan ganda';$('hintText').textContent=q.listen?'Dengarkan bacaan, lalu pilih jawabanmu.':'Pilih jawaban yang paling tepat, ya!';$('choices').innerHTML=q.o.map((opt,i)=>`<button type="button" class="choice" data-answer="${i}"><b>${String.fromCharCode(65+i)}.</b> ${escapeHtml(opt)}</button>`).join('');document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>chooseAnswer(Number(btn.dataset.answer))));$('audioSupport').textContent=speechSupported?(narrationOn?'Narasi otomatis aktif':'Narasi mati'):'Browser tidak mendukung narasi';$('listenBtn').disabled=!speechSupported;$('listenBtn').style.opacity=speechSupported?'1':'.5';$('progressBar').style.width=`${questionIndex/quizQuestions.length*100}%`;if(narrationOn&&speechSupported)setTimeout(()=>speakQuestion(q),350)}
+  function chooseAnswer(index){if(answerLocked)return;selectedAnswer=index;$('nextBtn').disabled=false;document.querySelectorAll('.choice').forEach(b=>b.classList.toggle('selected',Number(b.dataset.answer)===index))}
+  function checkAnswer(){const q=quizQuestions[questionIndex];if(!answerLocked){if(selectedAnswer===null)return;answerLocked=true;const ok=selectedAnswer===q.a;if(ok){correctCount++;score=Math.round(correctCount/quizQuestions.length*100);adaptiveTarget=Math.min(3,adaptiveTarget+.5);sfx('good')}else{adaptiveTarget=Math.max(1,adaptiveTarget-.5);sfx('bad')}document.querySelectorAll('.choice').forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add('correct');else if(i===selectedAnswer)b.classList.add('wrong')});const fb=$('feedback');fb.className=`feedback ${ok?'good':'try'}`;fb.innerHTML=ok?`<strong>🌟 Hebat! Jawabanmu benar.</strong>${escapeHtml(q.e)}`:`<strong>💛 Tidak apa-apa, kita belajar bersama.</strong>Jawaban yang tepat adalah <b>${escapeHtml(q.o[q.a])}</b>. ${escapeHtml(q.e)}`;fb.classList.remove('hidden');$('quizScoreNow').textContent=score;$('nextBtn').textContent=questionIndex===quizQuestions.length-1?'Lihat hasil 🏆':'Soal berikutnya →';$('hintText').textContent=ok?'Pertahankan semangat belajarmu!':'Kesalahan adalah kesempatan untuk memahami hal baru.';return}questionIndex++;if(questionIndex>=quizQuestions.length)finishQuiz();else renderQuestion()}
+  async function finishQuiz(){window.speechSynthesis?.cancel();$('progressBar').style.width='100%';const total=quizQuestions.length,percent=Math.round(correctCount/total*100),duration=Math.round((Date.now()-startTime)/1000);const result={id:`local_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,name:currentStudent.name,grade:currentStudent.grade,phase:currentPhase,subject:currentSubject,subjectName:SUBJECTS[currentSubject].name,score:percent,correct:correctCount,total,percent,duration,createdAt:new Date().toISOString(),source:'Lokal'};lastResult=result;saveLocal(result);let cloudSaved=false;if(cloudReady){try{if(!auth.currentUser||auth.currentUser.isAnonymous!==true)await auth.signInAnonymously();await db.collection('submissions').add({name:result.name,grade:result.grade,phase:result.phase,subject:result.subject,subjectName:result.subjectName,score:result.score,correct:result.correct,total:result.total,percent:result.percent,duration:result.duration,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtLocal:result.createdAt});cloudSaved=true}catch(err){console.error(err);toast('Nilai tersimpan di perangkat. Sinkronisasi cloud gagal: '+(err.code||'periksa konfigurasi'));}}
+    $('resultEmoji').textContent=percent>=85?'🏆':percent>=60?'🌟':'🌱';$('resultTitle').textContent=percent>=85?'Luar biasa!':percent>=60?'Bagus! Terus berlatih!':'Kamu sudah berusaha!';$('resultMessage').textContent=`Terima kasih sudah belajar, ${currentStudent.name}.`; $('resultScore').textContent=percent;$('resultCorrect').textContent=`${correctCount}/${total}`;$('resultPercent').textContent=percent+'%';$('resultPhase').textContent=PHASES[currentPhase].label;$('resultNote').textContent=(percent>=85?'Kamu sudah memahami banyak hal. Coba tantangan lain agar makin hebat!':percent>=60?'Kamu sudah berada di jalur yang baik. Baca kembali penjelasan dan berlatih lagi.':'Tidak apa-apa mendapatkan nilai kecil. Pelajari pembahasannya, lalu coba lagi. Setiap latihan membuatmu berkembang.')+(cloudSaved?' Nilai juga tersinkron ke cloud.':cloudReady?' Nilai tetap tersimpan di perangkat; cloud belum berhasil menerima data.':' Nilai tersimpan pada browser ini.');showView('resultView')}
+
+  function initFirebase(){const cfg=window.KUIS_FIREBASE_CONFIG;if(!cfg||!cfg.apiKey||!cfg.projectId||String(cfg.apiKey).includes('ISI_'))return;try{firebase.initializeApp(cfg);auth=firebase.auth();db=firebase.firestore();cloudReady=true;auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});$('loginModeText').textContent='Firebase aktif. Gunakan akun email/kata sandi yang sudah dibuat untuk guru.';$('localLoginFields').classList.add('hidden');$('cloudLoginFields').classList.remove('hidden');$('cloudNotice').textContent='Firebase terkonfigurasi. Murid mengirim nilai sebagai pengguna anonim; guru masuk dengan akun yang diizinkan pada Firestore Rules.';$('cloudNotice').classList.add('live')}catch(e){console.error('Firebase init:',e);cloudReady=false}}
+  function openTeacher(){showView('teacherView');$('teacherLoginPanel').classList.remove('hidden');$('dashboardPanel').classList.add('hidden');if(cloudReady){$('localLoginFields').classList.add('hidden');$('cloudLoginFields').classList.remove('hidden')}else{$('localLoginFields').classList.remove('hidden');$('cloudLoginFields').classList.add('hidden')}}
+  function normalizeCloudDoc(doc){const x=doc.data();return{id:doc.id,name:x.name||'—',grade:x.grade||'—',phase:x.phase||'—',subject:x.subject||'',subjectName:x.subjectName||SUBJECTS[x.subject]?.name||'—',score:Number(x.score||0),correct:Number(x.correct||0),total:Number(x.total||0),percent:Number(x.percent??x.score??0),duration:Number(x.duration||0),createdAt:x.createdAt||x.createdAtLocal||new Date().toISOString(),source:'Cloud'}}
+  function showDashboard(rows,cloud){liveResults=rows;$('teacherLoginPanel').classList.add('hidden');$('dashboardPanel').classList.remove('hidden');$('syncStatus').textContent=cloud?'● Cloud real-time':'● Lokal perangkat';$('syncStatus').className=cloud?'status live':'status';$('dashboardSubtitle').textContent=cloud?'Sinkronisasi Firestore aktif — perubahan akan tampil otomatis.':'Data hanya dibaca dari penyimpanan browser ini.';renderTable()}
+  function renderTable(){const q=($('searchResults').value||'').trim().toLowerCase();const rows=liveResults.filter(x=>`${x.name} ${x.subjectName} ${x.grade}`.toLowerCase().includes(q));const total=liveResults.length,avg=total?Math.round(liveResults.reduce((s,x)=>s+x.score,0)/total):0,highest=total?Math.max(...liveResults.map(x=>x.score)):0,students=new Set(liveResults.map(x=>`${x.name}|${x.grade}`)).size;$('statTotal').textContent=total;$('statAverage').textContent=avg;$('statStudents').textContent=students;$('statHighest').textContent=highest;$('resultsBody').innerHTML=rows.length?rows.map(x=>`<tr><td><b>${escapeHtml(x.name)}</b></td><td>Kelas ${escapeHtml(x.grade)}</td><td>${escapeHtml(x.subjectName)}</td><td><b>${x.score}</b></td><td>${x.correct}/${x.total}</td><td>${escapeHtml(fmtDate(x.createdAt))}</td><td><span class="tag">${x.source||'Lokal'}</span></td></tr>`).join(''):`<tr><td colspan="7" class="empty">${total?'Tidak ada data yang cocok dengan pencarian.':'Belum ada hasil kuis.'}</td></tr>`}
+  function loginLocal(){if($('teacherPin').value!=='1234'){toast('PIN demo tidak sesuai. Coba 1234.');return}teacherCloudMode=false;showDashboard(loadLocal().map(x=>({...x,subjectName:x.subjectName||SUBJECTS[x.subject]?.name||'—'})),false)}
+  async function loginCloud(){try{const email=$('teacherEmail').value.trim(),password=$('teacherPassword').value;if(!email||!password){toast('Isi email dan kata sandi guru.');return}await auth.signInWithEmailAndPassword(email,password);teacherCloudMode=true;const local=loadLocal().map(x=>({...x,subjectName:x.subjectName||SUBJECTS[x.subject]?.name||'—'}));showDashboard(local,true);if(unsubscribeResults)unsubscribeResults();unsubscribeResults=db.collection('submissions').orderBy('createdAt','desc').limit(1000).onSnapshot(snapshot=>{showDashboard(snapshot.docs.map(normalizeCloudDoc),true)},err=>{console.error(err);toast('Tidak dapat membaca data. Periksa email pada Firestore Rules.')})}catch(e){console.error(e);toast('Gagal masuk: '+(e.code||'periksa akun guru dan Firebase Rules'))}}
+  async function logout(){if(unsubscribeResults){unsubscribeResults();unsubscribeResults=null}if(cloudReady&&auth.currentUser&&!auth.currentUser.isAnonymous){try{await auth.signOut()}catch(e){}}liveResults=[];openTeacher()}
+  function exportRows(){return liveResults.map(x=>({Nama:x.name,Kelas:`Kelas ${x.grade}`,Fase:x.phase,MataPelajaran:x.subjectName,Nilai:x.score,JawabanBenar:`${x.correct}/${x.total}`,Tanggal:fmtDate(x.createdAt),Sumber:x.source||'Lokal'}))}
+  function exportWord(){const rows=exportRows();const html=`<html><head><meta charset="utf-8"></head><body><h1>Laporan Hasil Kuis — Petualangan Belajar</h1><p>Dicetak: ${new Date().toLocaleString('id-ID')}</p><table border="1" cellpadding="6" cellspacing="0"><tr>${Object.keys(rows[0]||{Nama:'Nama',Kelas:'Kelas',MataPelajaran:'Mata Pelajaran',Nilai:'Nilai'}).map(k=>`<th>${escapeHtml(k)}</th>`).join('')}</tr>${rows.map(r=>`<tr>${Object.values(r).map(v=>`<td>${escapeHtml(v)}</td>`).join('')}</tr>`).join('')}</table></body></html>`;downloadBlob(new Blob(['\ufeff',html],{type:'application/msword'}),'laporan-kuis-sd.doc')}
+  function exportExcel(){const rows=exportRows();if(!window.XLSX){toast('Pustaka Excel belum termuat. Periksa koneksi internet.');return}const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[{wch:24},{wch:12},{wch:10},{wch:25},{wch:10},{wch:15},{wch:24},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Hasil Kuis');XLSX.writeFile(wb,'laporan-kuis-sd.xlsx')}
+  function exportPdf(){const rows=exportRows();if(!window.jspdf?.jsPDF){toast('Pustaka PDF belum termuat. Gunakan tombol cetak browser.');window.print();return}const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});doc.setFontSize(16);doc.text('Laporan Hasil Kuis — Petualangan Belajar',14,15);doc.setFontSize(9);doc.text('Dicetak: '+new Date().toLocaleString('id-ID'),14,22);doc.autoTable({startY:28,head:[Object.keys(rows[0]||{Nama:'Nama',Kelas:'Kelas',MataPelajaran:'Mata Pelajaran',Nilai:'Nilai'})],body:rows.map(r=>Object.values(r)),styles:{fontSize:8,cellPadding:2},headStyles:{fillColor:[101,88,223]}});doc.save('laporan-kuis-sd.pdf')}
+  function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+
+  $('studentGrade').addEventListener('change',updatePhaseNotice);$('narrationToggle').addEventListener('change',e=>{narrationOn=e.target.checked;localStorage.setItem('pb_narration',String(narrationOn));if(!narrationOn)window.speechSynthesis?.cancel()});$('sfxToggle').addEventListener('change',e=>{sfxOn=e.target.checked;localStorage.setItem('pb_sfx',String(sfxOn))});$('studentForm').addEventListener('submit',e=>{e.preventDefault();const name=$('studentName').value.trim(),grade=Number($('studentGrade').value),subject=$('studentSubject').value;if(name.length<2){toast('Nama minimal 2 karakter, ya.');return}if(!grade||!subject){toast('Lengkapi kelas dan mata pelajaran terlebih dahulu.');return}startQuiz(name,grade,subject)});
+  $('nextBtn').addEventListener('click',checkAnswer);$('listenBtn').addEventListener('click',()=>{if(!speechSupported){toast('Narasi tidak didukung browser ini.');return}if(!narrationOn){toast('Aktifkan Narasi Soal terlebih dahulu.');return}speakQuestion(quizQuestions[questionIndex])});$('quitBtn').addEventListener('click',()=>{if(confirm('Keluar dari kuis? Jawaban yang belum selesai tidak disimpan.')){window.speechSynthesis?.cancel();showView('homeView')}});
+  $('retryBtn').addEventListener('click',()=>startQuiz(currentStudent.name,currentStudent.grade,currentSubject));$('backHomeBtn').addEventListener('click',()=>showView('homeView'));$('homeBtn').addEventListener('click',()=>{window.speechSynthesis?.cancel();showView('homeView')});$('teacherBtn').addEventListener('click',openTeacher);$('localLoginBtn').addEventListener('click',loginLocal);$('cloudLoginBtn').addEventListener('click',loginCloud);$('logoutBtn').addEventListener('click',logout);$('refreshBtn').addEventListener('click',()=>{if(cloudReady&&teacherCloudMode){toast('Data cloud diperbarui otomatis secara real-time.')}else{showDashboard(loadLocal().map(x=>({...x,subjectName:x.subjectName||SUBJECTS[x.subject]?.name||'—'})),false);toast('Data lokal dimuat ulang.')}});$('searchResults').addEventListener('input',renderTable);$('wordBtn').addEventListener('click',exportWord);$('excelBtn').addEventListener('click',exportExcel);$('pdfBtn').addEventListener('click',exportPdf);
+  $('subjectPreview').addEventListener('click',e=>{const card=e.target.closest('.subject-chip');if(card){$('studentSubject').value=card.dataset.subject;document.querySelectorAll('.subject-chip').forEach(x=>x.classList.toggle('active',x===card));$('studentSubject').scrollIntoView({behavior:'smooth',block:'center'})}});$('studentSubject').addEventListener('change',()=>document.querySelectorAll('.subject-chip').forEach(x=>x.classList.toggle('active',x.dataset.subject===$('studentSubject').value)));
+  populateSubjects();setAudioToggles();initFirebase();
+})();
+</script>
+</body>
+</html>
